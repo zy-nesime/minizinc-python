@@ -100,3 +100,19 @@ class TestBranch(InstanceTestCase):
                     assert len(w) == 1
                     assert issubclass(w[-1].category, MiniZincWarning)
                     assert "model inconsistency" in str(w[-1].message)
+
+
+class TestFlattenStatisticsCollection(InstanceTestCase):
+    code = """
+        var int: x;
+        var int: y;
+        constraint x + y < 10;
+    """
+
+    def test_flatten_statistics_collection(self):
+        with self.instance.flat() as (_, _, s):
+            assert s["path"] == 0
+            assert s["flatIntVars"] == 2
+            assert s["flatIntConstraints"] == 1
+            assert s["method"] == "satisfy"
+            assert s["flatTime"]

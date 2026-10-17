@@ -6,7 +6,6 @@ import contextlib
 import json
 import logging
 import os
-import re
 import sys
 import tempfile
 import warnings
@@ -1009,9 +1008,10 @@ class Instance(Model):
             output = self._driver._run(cmd, solver=self._solver)
 
         statistics: Dict[str, Any] = {}
-        matches = re.findall(rb"%%%mzn-stat:? (\w*)=([^\r\n]*)", output.stdout)
-        for m in matches:
-            set_stat(statistics, m[0].decode(), m[1].decode())
+        for obj in decode_json_stream(output.stdout):
+            if obj["type"] == "statistics":
+                statistics = obj["statistics"]
+                break
 
         try:
             yield fzn, ozn, statistics
