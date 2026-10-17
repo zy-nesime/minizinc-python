@@ -18,6 +18,7 @@ Fixed
   MiniZinc itself the process has already exited and taken its pipe with it. A
   missing pipe now falls back to killing the process, so the original error is
   the one that surfaces.
+- Fix an issue where flattening statistics were not parsed correctly.
 
 0.10.0_ - 2025-02-25
 -------------------
