@@ -77,6 +77,7 @@ class Instance(Model):
         solver: Solver,
         model: Optional[Model] = None,
         driver: Optional[Driver] = None,
+        save_comment: bool = False,
     ):
         super().__init__()
         self._solver = solver
@@ -101,6 +102,8 @@ class Instance(Model):
             if self.output_type is None:
                 self.analyse()
                 model.output_type = self.output_type
+        self.save_comment = save_comment
+        self.solving_comments = []
 
     def solve(
         self,
@@ -1058,6 +1061,9 @@ class Instance(Model):
             else:
                 # TODO: can we ensure this is made JSON?
                 statistics["_checker"] = obj["output"]["dzn"]
+        elif obj["type"] == "comment":
+            if self.save_comment:
+                self.solving_comments.append(obj["comment"])
 
         return solution, status, statistics
 

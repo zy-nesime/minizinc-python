@@ -102,6 +102,33 @@ class TestBranch(InstanceTestCase):
                     assert "model inconsistency" in str(w[-1].message)
 
 
+@pytest.mark.parametrize(
+    "options, should_save",
+    [
+        ({}, False),
+        ({"save_comment": False}, False),
+        ({"save_comment": True}, True),
+    ],
+    ids=["default", "disabled", "enabled"],
+)
+def test_solving_comments(options, should_save):
+    instance = minizinc.Instance(minizinc.Solver.lookup("gecode"), **options)
+    comments = ["% First solving comment\n", "% Second solving comment\n"]
+    statistics = {"nodes": 1}
+
+    assert instance.solving_comments == []
+    for comment in comments:
+        solution, status, parsed_statistics = instance._parse_stream_obj(
+            {"type": "comment", "comment": comment}, statistics
+        )
+        assert solution is None
+        assert status is None
+        assert parsed_statistics is statistics
+
+    assert instance.solving_comments == (comments if should_save else [])
+    assert statistics == {"nodes": 1}
+
+
 class TestFlattenStatisticsCollection(InstanceTestCase):
     code = """
         var int: x;
